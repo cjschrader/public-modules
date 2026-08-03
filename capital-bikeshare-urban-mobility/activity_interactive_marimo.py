@@ -90,9 +90,10 @@ def _(mo):
 
 
 @app.cell
-def _(Path, mo, urllib):
+def _(mo):
     import tool_library as tl
-    import polars as pl
+    import urllib.request
+    from pathlib import Path
 
     path_to_csv = mo.notebook_location() / "data" / "2025_four_month_sampled_trips.csv"
     path_str = str(path_to_csv)
