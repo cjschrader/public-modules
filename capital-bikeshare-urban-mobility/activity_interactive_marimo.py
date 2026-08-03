@@ -90,7 +90,7 @@ def _(mo):
 
 
 @app.cell
-def _(io, mo, urllib):
+def _(Path, mo, urllib):
     import tool_library as tl
     import polars as pl
 
@@ -100,9 +100,14 @@ def _(io, mo, urllib):
     if path_str.startswith(("http://", "https://")):
         with urllib.request.urlopen(path_str) as response:
             csv_bytes = response.read()
-    
-        csv_file_like = io.BytesIO(csv_bytes)
-        trips = tl.load_bikeshare_data(csv_file_like)
+
+        wasm_disk_path = Path("/tmp/local_sampled_trips.csv")
+        wasm_disk_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(wasm_disk_path, "wb") as f:
+            f.write(csv_bytes)
+
+        trips = tl.load_bikeshare_data(wasm_disk_path)
     else:
         trips = tl.load_bikeshare_data(path_to_csv)
     trips.head()
