@@ -90,13 +90,21 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
+def _(io, mo, urllib):
     import tool_library as tl
     import polars as pl
 
     path_to_csv = mo.notebook_location() / "data" / "2025_four_month_sampled_trips.csv"
-    trip_csv = pl.read_csv(str(path_to_csv))
-    trips = tl.load_bikeshare_data(path_to_csv)
+    path_str = str(path_to_csv)
+
+    if path_str.startswith(("http://", "https://")):
+        with urllib.request.urlopen(path_str) as response:
+            csv_bytes = response.read()
+    
+        csv_file_like = io.BytesIO(csv_bytes)
+        trips = tl.load_bikeshare_data(csv_file_like)
+    else:
+        trips = tl.load_bikeshare_data(path_to_csv)
     trips.head()
     return tl, trips
 
